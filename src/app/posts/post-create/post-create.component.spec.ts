@@ -4,10 +4,7 @@ import { PostCreateComponent } from './post-create.component';
 describe('PostCreateComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [
-          PostCreateComponent
-      ],
-
+      declarations: [PostCreateComponent]
     }).compileComponents();
   }));
 
@@ -23,5 +20,4 @@ describe('PostCreateComponent', () => {
     const compiled = fixture.debugElement.componentInstance;
     expect(compiled.newPost).toBe('');
   });
-
 });
