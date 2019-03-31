@@ -4,7 +4,11 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Run `ng serve` for a dev angular server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+
+Run 'npm start:server' to run nodejs locally using nodemon.
+
+Note that the mongodb connection string is read in from an external file in the same level as project folder, so that must also be present and titled mongoConnectionString.txt
 
 ## Code scaffolding
 
