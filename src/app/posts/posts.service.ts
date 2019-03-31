@@ -24,8 +24,7 @@ export class PostsService {
     this.postsUpdated.next([...this.posts]);
   }
 
-  getPostUpdateListener()
-  {
+  getPostUpdateListener() {
     // returns a reference to the Subject that can only be observed, not modified
     return this.postsUpdated.asObservable();
   }
