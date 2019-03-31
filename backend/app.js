@@ -4,6 +4,20 @@ const express = require('express');
 // Express apps are a chain of middleware functions
 const app = express();
 
+// this middleware allows for Cross Origin Resource Sharing so the api can be hit from outside of the server it is running on
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PATCH, DELETE, OPTIONS'
+  );
+  next();
+});
+
 app.use('/api/posts', (req, res, next) => {
   const posts = [
     {

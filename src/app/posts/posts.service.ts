@@ -1,5 +1,6 @@
 import { Post } from './post.model';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 
 // Angular decorator that allows for this class to be selected for dependency injection
@@ -11,13 +12,21 @@ export class PostsService {
   // defines a new subject to be used as an observable
   private postsUpdated = new Subject<Post[]>();
 
+  constructor(private http: HttpClient) {}
+
   getPosts() {
-    // Spread operator ( [...arrayName] )creates a new array and adds all of the items from this.posts into the new array
-    return [...this.posts];
+    this.http
+      .get<{ message: string; posts: Post[] }>(
+        'http://localhost:3000/api/posts'
+      )
+      .subscribe(postData => {
+        this.posts = postData.posts;
+        this.postsUpdated.next([...this.posts]);
+      });
   }
 
   addPost(title: string, content: string) {
-    const post: Post = { title, content };
+    const post: Post = { id: null, title, content };
     this.posts.push(post);
 
     // emits an observable has changed event for observers of postsUpdated to react to
