@@ -2,6 +2,7 @@ import { Post } from './post.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 // Angular decorator that allows for this class to be selected for dependency injection
 // the providedIn root parameter ensures that angular only creates one instance of this class
@@ -14,14 +15,28 @@ export class PostsService {
 
   constructor(private http: HttpClient) {}
 
+  getPostUpdateListener() {
+    // returns a reference to the Subject that can only be observed, not modified
+    return this.postsUpdated.asObservable();
+  }
+
+  // maps every post from the api to a Post object that has id instead of _id
   getPosts() {
     this.http
-      .get<{ message: string; posts: Post[] }>(
-        'http://localhost:3000/api/posts'
+      .get<{ message: string; posts: any }>('http://localhost:3000/api/posts')
+      .pipe(
+        map(postData => {
+          return postData.posts.map(post => {
+            return {
+              title: post.title,
+              content: post.content,
+              id: post._id
+            };
+          });
+        })
       )
-      .pipe()
-      .subscribe(postData => {
-        this.posts = postData.posts;
+      .subscribe(transformedPosts => {
+        this.posts = transformedPosts;
         this.postsUpdated.next([...this.posts]);
       });
   }
@@ -39,8 +54,13 @@ export class PostsService {
       });
   }
 
-  getPostUpdateListener() {
-    // returns a reference to the Subject that can only be observed, not modified
-    return this.postsUpdated.asObservable();
+  deletePost(postId: string) {
+    this.http
+      .delete('http://localhost:3000/api/posts/' + postId)
+      .subscribe(() => {
+        const updatedPosts = this.posts.filter(post => post.id !== postId);
+        this.posts = updatedPosts;
+        this.postsUpdated.next([...this.posts]);
+      });
   }
 }
