@@ -45,10 +45,12 @@ export class PostsService {
     const post: Post = { id: null, title, content };
 
     this.http
-      .post<{ message: string }>('http://localhost:3000/api/posts', post)
+      .post<{ message: string, postId: string }>('http://localhost:3000/api/posts', post)
       .subscribe(responseData => {
         console.log(responseData.message);
+        post.id = responseData.postId;
         this.posts.push(post);
+
         // emits an observable has changed event for observers of postsUpdated to react to
         this.postsUpdated.next([...this.posts]);
       });

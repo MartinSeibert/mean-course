@@ -43,14 +43,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/api/posts', (req, res, next) => {
-  const post = new Post(req.body);
-  post.save();
-  res.status(201).json({
-    message: 'Post added successfully'
-  });
-});
-
 app.get('/api/posts', (req, res, next) => {
   Post.find().then(documents => {
     res.status(200).json({
@@ -59,6 +51,20 @@ app.get('/api/posts', (req, res, next) => {
     });
   });
 });
+
+app.post('/api/posts', (req, res, next) => {
+  const post = new Post(req.body);
+
+  // get the results of the save in order to pass the object id in the response
+  post.save().then(result => {
+    res.status(201).json({
+      message: 'Post added successfully',
+      postId: result._id
+    });
+  });
+
+});
+
 
 app.delete('/api/posts/:id', (req, res, next) => {
   Post.deleteOne({ _id: req.params.id }).then(result => {
