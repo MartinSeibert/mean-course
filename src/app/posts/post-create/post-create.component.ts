@@ -29,7 +29,8 @@ export class PostCreateComponent implements OnInit {
         validators: [Validators.required, Validators.minLength(3)]
       }),
 
-      content: new FormControl(null, { validators: [Validators.required] })
+      content: new FormControl(null, { validators: [Validators.required] }),
+      image: new FormControl(null, { validators: [Validators.required] })
     });
 
     // parameter map is a built in observer, so you never need to unsubscribe
@@ -76,5 +77,16 @@ export class PostCreateComponent implements OnInit {
       );
     }
     this.form.reset();
+  }
+
+  onImagePicked(event: Event) {
+    // cast the event target as an HTMLInputElement to access the files
+    const file = (event.target as HTMLInputElement).files[0];
+    // change just the value of the form's image
+    this.form.patchValue({ image: file });
+    // let angular know that the image has been updated
+    this.form.get('image').updateValueAndValidity();
+    console.log(file);
+    console.log(this.form);
   }
 }

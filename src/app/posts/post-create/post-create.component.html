@@ -2,7 +2,7 @@
   <mat-spinner *ngIf="isLoading"></mat-spinner>
   <form [formGroup]="form" (submit)="onSavePost()" *ngIf="!isLoading">
     <mat-form-field>
-      <input matInput type="text" formControlName="title" placeholder="Post Title" name="title" />
+      <input matInput type="text" formControlName="title" placeholder="Post Title" name="title" required />
       <mat-error *ngIf="form.get('title').invalid">Please enter a post title.</mat-error>
     </mat-form-field>
 
@@ -16,7 +16,9 @@
         Upload Image
       </button>
       <!-- we want to use the standard file input but with the pretty angular button to trigger it -->
-      <input type="file" #filePicker />
+      <!-- that will open the file selection window, and when an image is selected the (change) event is fired on the input -->
+      <!-- $event allows angular to access the onImagePicked event on the input -->
+      <input type="file" #filePicker (change)="onImagePicked($event)" />
     </div>
     <mat-form-field>
       <textarea
@@ -25,6 +27,7 @@
         name="content"
         formControlName="content"
         placeholder="Post Content"
+        required
       ></textarea>
       <mat-error *ngIf="form.get('content').invalid">Please enter post content.</mat-error>
     </mat-form-field>
