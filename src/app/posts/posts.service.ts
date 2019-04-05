@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 // Angular decorator that allows for this class to be selected for dependency injection
 // the providedIn root parameter ensures that angular only creates one instance of this class
@@ -13,7 +14,7 @@ export class PostsService {
   // defines a new subject to be used as an observable
   private postsUpdated = new Subject<Post[]>();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   getPostUpdateListener() {
     // returns a reference to the Subject that can only be observed, not modified
@@ -63,6 +64,9 @@ export class PostsService {
 
         // emits an observable has changed event for observers of postsUpdated to react to
         this.postsUpdated.next([...this.posts]);
+
+        // user is routed back to the post list after they add a post
+        this.router.navigate(['/']);
       });
   }
 
@@ -76,6 +80,9 @@ export class PostsService {
         updatedPosts[oldPostIndex] = post;
         this.posts = updatedPosts;
         this.postsUpdated.next([...this.posts]);
+
+        // user is routed back to the post list after they add a post
+        this.router.navigate(['/']);
       });
   }
 
