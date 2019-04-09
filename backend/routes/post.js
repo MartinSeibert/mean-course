@@ -1,8 +1,15 @@
 const express = require('express');
+const multer = require('multer');
 
 const Post = require('../models/post');
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "backend/images");
+  }
+});
 
 router.get('', (req, res, next) => {
   Post.find().then(documents => {

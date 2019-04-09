@@ -4,6 +4,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { PostsService } from '../posts.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Post } from '../post.model';
+import { mimeType } from './mime-type.validator';
 
 @Component({
   selector: 'app-post-create',
@@ -31,7 +32,8 @@ export class PostCreateComponent implements OnInit {
       }),
 
       content: new FormControl(null, { validators: [Validators.required] }),
-      image: new FormControl(null, { validators: [Validators.required] })
+      // angular differentiates between synchronous validators and asynchronous validators
+      image: new FormControl(null, { validators: [Validators.required], asyncValidators: [mimeType] })
     });
 
     // parameter map is a built in observer, so you never need to unsubscribe
