@@ -31,6 +31,8 @@ mongoose
 // adds body parser to parse json data and make it available on the req object
 app.use(bodyParser.json());
 
+
+
 // this middleware allows for Cross Origin Resource Sharing so the api can be hit from outside of the server it is running on
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

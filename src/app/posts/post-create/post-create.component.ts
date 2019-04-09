@@ -33,7 +33,10 @@ export class PostCreateComponent implements OnInit {
 
       content: new FormControl(null, { validators: [Validators.required] }),
       // angular differentiates between synchronous validators and asynchronous validators
-      image: new FormControl(null, { validators: [Validators.required], asyncValidators: [mimeType] })
+      image: new FormControl(null, {
+        validators: [Validators.required],
+        asyncValidators: [mimeType]
+      })
     });
 
     // parameter map is a built in observer, so you never need to unsubscribe
@@ -71,7 +74,11 @@ export class PostCreateComponent implements OnInit {
 
     this.isLoading = true;
     if (this.mode === 'create') {
-      this.postsService.addPost(this.form.value.title, this.form.value.content);
+      this.postsService.addPost(
+        this.form.value.title,
+        this.form.value.content,
+        this.form.value.image
+      );
     } else {
       this.postsService.updatePost(
         this.postId,
@@ -94,7 +101,5 @@ export class PostCreateComponent implements OnInit {
       this.imagePreview = reader.result as string;
     };
     reader.readAsDataURL(file);
-
-
   }
 }
