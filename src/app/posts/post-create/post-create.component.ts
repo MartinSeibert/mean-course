@@ -48,16 +48,18 @@ export class PostCreateComponent implements OnInit {
         // want to show a spinner while loading posts
         this.isLoading = true;
         this.postsService.getPost(this.postId).subscribe(postData => {
+          this.isLoading = false;
           this.post = {
             id: postData._id,
             title: postData.title,
-            content: postData.content
+            content: postData.content,
+            imagePath: null
           };
           this.form.setValue({
             title: this.post.title,
             content: this.post.content
           });
-          this.isLoading = false;
+
         });
       } else {
         this.mode = 'create';

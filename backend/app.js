@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const postsRoutes = require('./routes/post');
 
@@ -30,6 +31,9 @@ mongoose
 
 // adds body parser to parse json data and make it available on the req object
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false}));
+// make requests targeting /images available to access static files, mapped to backend folder
+app.use('/images', express.static(path.join('backend/images')));
 
 
 
