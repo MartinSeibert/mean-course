@@ -31,7 +31,23 @@ const storage = multer.diskStorage({
 });
 
 router.get('', (req, res, next) => {
-  Post.find().then(documents => {
+  // access request query parameters
+  // the + converts the query values (strings by default) to integers because that is what Mongoose expects
+  const pageSize = +req.query.pagesize;
+  const currentPage = +req.query.page;
+
+  // Mongoose query to be executed once it is built out
+  const postQuery = Post.find();
+
+  // if query parameters are not null or 0
+  if (pageSize && currentPage) {
+    // you want to skip all items that belong on pages before the page you are currently on
+    // and also only return as many items as you want to display
+    postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
+  }
+
+  // execute the mongoose query
+  postQuery.then(documents => {
     res.status(200).json({
       message: 'Posts fetched successfully',
       posts: documents
@@ -53,7 +69,7 @@ router.post(
     });
 
     // get the results of the save in order to pass the object id in the response
-    post.save().then(result => {
+    post.save().then(createdPost => {
       res.status(201).json({
         message: 'Post added successfully',
         post: {
@@ -83,7 +99,7 @@ router.put(
   (req, res, next) => {
     let imagePath = req.body.imagePath;
     console.log(req.file);
-    if(req.file) {
+    if (req.file) {
       const url = req.protocol + '://' + req.get('host');
       imagePath = url + '/images/' + req.file.filename;
     }
