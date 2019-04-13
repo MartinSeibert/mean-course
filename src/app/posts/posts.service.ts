@@ -12,7 +12,7 @@ export class PostsService {
   private posts: Post[] = [];
 
   // defines a new subject to be used as an observable
-  private postsUpdated = new Subject<Post[]>();
+  private postsUpdated = new Subject<{ posts: Post[]; postCount: number }>();
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -22,32 +22,46 @@ export class PostsService {
   }
 
   // maps every post from the api to a Post object that has id instead of _id
-  getPosts() {
+  getPosts(postsPerPage: number, currentPage: number) {
+    // back ticks allow you to dynamically add elements into a string
+    // called Dynamic Value Injection
+    const queryParams = `?pagesize=${postsPerPage}&page=${currentPage}`;
     this.http
-      .get<{ message: string; posts: any }>('http://localhost:3000/api/posts')
+      .get<{ message: string; posts: any; totalPosts: number }>(
+        'http://localhost:3000/api/posts' + queryParams
+      )
       .pipe(
         map(postData => {
-          return postData.posts.map(post => {
-            return {
-              title: post.title,
-              content: post.content,
-              id: post._id,
-              imagePath: post.imagePath
-            };
-          });
+          return {
+            posts: postData.posts.map(post => {
+              return {
+                title: post.title,
+                content: post.content,
+                id: post._id,
+                imagePath: post.imagePath
+              };
+            }),
+            totalPosts: postData.totalPosts
+          };
         })
       )
-      .subscribe(transformedPosts => {
-        this.posts = transformedPosts;
-        this.postsUpdated.next([...this.posts]);
+      .subscribe(transformedPostData => {
+        this.posts = transformedPostData.posts;
+        this.postsUpdated.next({
+          posts: [...this.posts],
+          postCount: transformedPostData.totalPosts
+        });
       });
   }
 
   getPost(id: string) {
     // return an observable
-    return this.http.get<{ _id: string; title: string; content: string, imagePath: string }>(
-      'http://localhost:3000/api/posts/' + id
-    );
+    return this.http.get<{
+      _id: string;
+      title: string;
+      content: string;
+      imagePath: string;
+    }>('http://localhost:3000/api/posts/' + id);
   }
 
   addPost(title: string, content: string, image: File) {
@@ -63,21 +77,6 @@ export class PostsService {
         postData
       )
       .subscribe(responseData => {
-        const post: Post = {
-          id: responseData.post.id,
-          // tslint:disable-next-line: object-literal-shorthand
-          title: title,
-          // tslint:disable-next-line: object-literal-shorthand
-          content: content,
-          imagePath: responseData.post.imagePath
-        };
-        console.log(responseData.message);
-        post.id = responseData.post.id;
-        this.posts.push(post);
-
-        // emits an observable has changed event for observers of postsUpdated to react to
-        this.postsUpdated.next([...this.posts]);
-
         // user is routed back to the post list after they add a post
         this.router.navigate(['/']);
       });
@@ -100,30 +99,13 @@ export class PostsService {
     this.http
       .put('http://localhost:3000/api/posts/' + id, postData)
       .subscribe(response => {
-        const updatedPosts = [...this.posts];
-        const oldPostIndex = updatedPosts.findIndex(p => p.id === id);
-        const post: Post = {
-          id,
-          title,
-          content,
-          imagePath: 'response.imagePath'
-        };
-        updatedPosts[oldPostIndex] = post;
-        this.posts = updatedPosts;
-        this.postsUpdated.next([...this.posts]);
-
         // user is routed back to the post list after they add a post
         this.router.navigate(['/']);
       });
   }
 
   deletePost(postId: string) {
-    this.http
-      .delete('http://localhost:3000/api/posts/' + postId)
-      .subscribe(() => {
-        const updatedPosts = this.posts.filter(post => post.id !== postId);
-        this.posts = updatedPosts;
-        this.postsUpdated.next([...this.posts]);
-      });
+    // by returning the http call, you can subscribe from the component
+    return this.http.delete('http://localhost:3000/api/posts/' + postId);
   }
 }

@@ -35,7 +35,7 @@ router.get('', (req, res, next) => {
   // the + converts the query values (strings by default) to integers because that is what Mongoose expects
   const pageSize = +req.query.pagesize;
   const currentPage = +req.query.page;
-
+  let fetchedPosts;
   // Mongoose query to be executed once it is built out
   const postQuery = Post.find();
 
@@ -47,12 +47,19 @@ router.get('', (req, res, next) => {
   }
 
   // execute the mongoose query
-  postQuery.then(documents => {
-    res.status(200).json({
-      message: 'Posts fetched successfully',
-      posts: documents
+  postQuery
+    .then(documents => {
+      fetchedPosts = documents;
+      // get a total post count
+      return Post.countDocuments();
+    })
+    .then(count => {
+      res.status(200).json({
+        message: 'Posts fetched successfully!',
+        posts: fetchedPosts,
+        totalPosts: count
+      });
     });
-  });
 });
 
 // in express, can pass as many middleware methods as you want in the route and they will execute from left to right
