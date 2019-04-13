@@ -40,28 +40,32 @@ router.get('', (req, res, next) => {
 });
 
 // in express, can pass as many middleware methods as you want in the route and they will execute from left to right
-router.post('', multer({ storage: storage }).single("image"), (req, res, next) => {
-  // get the server url to build out the image url
-  const url = req.protocol + '://' + req.get('host');
-  const post = new Post({
-    title: req.body.title,
-    content: req.body.content,
-    imagePath: url + '/images/' + req.file.filename
-  });
-
-  // get the results of the save in order to pass the object id in the response
-  post.save().then(result => {
-    res.status(201).json({
-      message: 'Post added successfully',
-      post: {
-        id: createdPost._id,
-        title: createdPost.title,
-        content: createdPost.content,
-        imagePath: createdPost.imagePath
-      }
+router.post(
+  '',
+  multer({ storage: storage }).single('image'),
+  (req, res, next) => {
+    // get the server url to build out the image url
+    const url = req.protocol + '://' + req.get('host');
+    const post = new Post({
+      title: req.body.title,
+      content: req.body.content,
+      imagePath: url + '/images/' + req.file.filename
     });
-  });
-});
+
+    // get the results of the save in order to pass the object id in the response
+    post.save().then(result => {
+      res.status(201).json({
+        message: 'Post added successfully',
+        post: {
+          id: createdPost._id,
+          title: createdPost.title,
+          content: createdPost.content,
+          imagePath: createdPost.imagePath
+        }
+      });
+    });
+  }
+);
 
 router.get('/:id', (req, res, next) => {
   Post.findById(req.params.id).then(post => {
@@ -73,19 +77,30 @@ router.get('/:id', (req, res, next) => {
   });
 });
 
-router.put('/:id', (req, res, next) => {
-  const post = new Post({
-    _id: req.body.id,
-    title: req.body.title,
-    content: req.body.content
-  });
-  Post.updateOne({ _id: req.params.id }, post).then(result => {
-    res.status(200).json({ message: 'Update successful' });
-  });
-});
+router.put(
+  '/:id',
+  multer({ storage: storage }).single('image'),
+  (req, res, next) => {
+    let imagePath = req.body.imagePath;
+    console.log(req.file);
+    if(req.file) {
+      const url = req.protocol + '://' + req.get('host');
+      imagePath = url + '/images/' + req.file.filename;
+    }
+    const post = new Post({
+      _id: req.body.id,
+      title: req.body.title,
+      content: req.body.content,
+      imagePath: imagePath
+    });
+    Post.updateOne({ _id: req.params.id }, post).then(result => {
+      res.status(200).json({ message: 'Update successful' });
+    });
+  }
+);
 
 router.delete('/:id', (req, res, next) => {
-  Post.deleteOne({ _id: req.params.id }).then(result => { });
+  Post.deleteOne({ _id: req.params.id }).then(result => {});
   res.status(200).json({ message: 'post deleted' });
 });
 
