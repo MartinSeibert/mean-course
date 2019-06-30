@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 const postsRoutes = require('./routes/post');
+const userRoutes = require('./routes/user')
 
 const fs = require('fs');
 
@@ -54,6 +55,8 @@ app.use((req, res, next) => {
 // if request starts with /api/posts, apply the postRoutes
 // the request then hits the postRoutes with that portion already stripped from it
 app.use('/api/posts', postsRoutes);
+
+app.use('/api/user', userRoutes);
 
 // makes the app available to the server
 module.exports = app;
